@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script src="graphs.js"></script>
+    <title>CS 416 Narrative Visualization</title>
+    <h1>Exploration of NBA Regular Season Vs. Post Season Scoring</h1>
+    <hr>
+</head>
+
+<body>
+    <div id="intro">
+        <p> The 2022-2023 NBA season was one of the most exciting yet with high flying dunks, long standing records being shattered, new young superstars around the league, and first time NBA champions in the Denver Nuggets led by 2021 and 2022 League MVP Nikola Jokic. </p>
+        <p>Basketball is a simple game, the two teams on the court have one task: outscore the other. This means that a team's ability to score should be a good predictor of their success in the league. However, in the playoff, the lights are brighter, and the pressure is on. Teams that scored with ease in the regular sason can fail to find their groove in the playoffs when they don't have the experience that other teams do. Keep scrolling down to take a look at the <b>points per game (PPG)</b> of teams during the regular season vs. the post season and see if we notice anything interesting!</p>
+        <button onclick="event1()">Let's get started!</button>
+        <hr>
+    </div>
+    
+    <div id="event1" style="display: none;">
+        <h3>League Over the Years</h3>
+        <p>To start off, we'll take a look at how scoring has changed in the league since the first NBA season in 1946. </p>
+        <p>The league has gone through various of phases of scoring as the rules of the game have evolved, and the skills of the players playing it have leveled up. At the start, the game was played very slow and the skill level was lower than it is these days. However, in the 1960s, PPG peaked at 118.8 in 1961. This can partially be attributed to a higher skill level than when the league started but also an incredibly fast pace of the game during that period. Shots were taken early in the shot clock and because players field goal eprcentage were significantlly lower than they are now, the game was played by taking as many shots as possible within the 48 minutes of play.</p>
+        <p>Between the 60s to the late 90s, PPG decreased relatively consistently. As players were becoming more skillful, they were more careful with the shots that they were taking and defensive intensity also increased. On top of that, rule changes throughout the period made it harder for players to score.</p>
+        <div id="linegraphdiv" style="text-align:center">
+            <svg width =600 height = 500 id = "linegraph"></svg>
+        </div>
+        <p>From the early 2000s to present, PPG around the league has shot up. this can once again be attributed to more skillful and efficient players but also the surge of the importance of the 3 point shot around the league. Teams are shooting more 3 pointers at better percentages than ever. This all caps us off at the 2022-2023 season where PPG was the highest it's been since 1969. Let's take a look at how individual teams scored in the 2022-2023 season. </p>
+        <button onclick = "event2()">Explore individual team scoring!</button>
+        <hr>
+    </div>
+
+    <div id="event2" style="display: none;">
+        <h3>Team Scoring during 2022-2023 Regular Season and Post Season</h3>
+        <p>The Bar graph below shows how many PPG each team scored during the 2022-2023 regular season and post season. Note that teams that do not have a bar in the post season view of the graph did not qualify for the playoffs.</p>
+        <p><i>Use the "Regular Season" and "Post Season" buttons below to explore how teams scored in both phases of the season.</i></p>
+        <div id="bargraphDiv" style="text-align:center">
+            <button onclick = "update('PPG')">Regular Season</button>
+            <button onclick = "update('PPG_Post')">Post Season</button>
+            <br>
+            <svg width =600 height = 500 id = "bargraph"></svg>
+        </div>
+        <p>Looking at a few key teams, some of the highest scoring playoff teams such as the MIL Bucks, ATL Hawks, and the LAC Clippers did not even make the NBA Finals. The MIA Heat, who were the lowest scoring team in the regular season, wound up being Eastern Conference Final Champions. They ended up going to the NBA Finals and losing to the Denver Nuggets 4 games to 1. The Nuggets on the other hand were in the middle of the pack in terms of PPG during both the regular season and post season showing that in order to win a championship, a team must not only be good at scoring, but at defense as well.</p>
+        <p>Finally, let's look at the best scoring team in the regular season, the Sacramento (SAC) Kings. They had a scorching hot season led to the playoffs for the first time in 16 years by young star De'Aaron Fox. However, in the post season, it all fell apart and the team made a first round exit losing to the 2021-2022 NBA Champion Golden State Warriors. The Sacramento Kings went from scoring 120.7 PPG in the regular season to 113.7 PPG in the post season. Let's take a look and see what led to this dropoff. </p>
+        <button onclick = "event3()">Explore SAC Kings Individual Player Scoring!</button>
+        <hr>
+    </div>
+
+    <div id="event3" style="display: none;">
+        <h3>SAC Kings Scoring during 2022-2023</h3>  
+        <p>Looking at the table below, it's apparent that the SAC Kings were on a scorcher during the regular season with the starting 5 averaging nearly 18 PPG and the bench (classified as the next 8 players on the team for the purposes of this project due to larger rotations used in the regular season) averaging around 6 ppg. Both of these numbers dropped in the post season with the starters scoring going down by nearly 1 PPG and and the Bench scoring dropping by 1.5 PPG. </p>
+        <div id="scatterdiv" style="text-align:center">
+            <svg width =600 height = 500 id = "scatter"></svg>
+        </div>
+        <p>The Kings were one of the younger teams in the league over this season with most of their players never having been to the playoffs. While star De'Aaron Fox rose to the challenge and went from scoring 25.4 PPG in the regular season to 27.4 PPG in the playoffs, other members of the young core struggled and overall scoring dropped. Nonetheless, the Kings have proved that theyre an exciting team and one to watch as they gain more experience together and no doubt make a deeper playoff run in the next few years!</p>
+        <button onclick = "event4()">Start Over</button>    </div>
+    </div>
+</body>
+
+
+
+<script>
+    const margin = 50,
+        width = 600 - 2 * margin,
+        height = 500 - 2 * margin;
+    
+    const svg = d3.select("#bargraph")
+        .append("g")
+        .attr("transform", "translate(" + margin + "," + margin + ")");
+    
+    const x = d3.scaleBand().range([0, width]).padding(0.25);
+    const y = d3.scaleLinear().domain([90, 122]).range([height, 0]);
+    
+    function update(selectedVar) {
+
+      d3.csv("Team_PPG.csv").then(function(data){
+        
+        x.domain(data.map(function(d){return d.Abbreviation}));
+        const xAxis = svg.append("g")
+            .attr("transform", "translate(0," + height + ")")
+            .call(d3.axisBottom(x))
+            .selectAll("text")
+            .attr("transform", "translate(-10,0), rotate(-45)")
+            .attr("font-size", ".9em")
+            .style("text-anchor", "end");
+    
+        svg.append("g").call(d3.axisLeft(y));
+    
+        svg.selectAll("rect")
+            .data(data)
+            .join("rect")
+            .transition()
+            .duration(1000)
+            .attr("x", function(d){return x(d.Abbreviation)})
+            .attr("y", function(d){return y(d[selectedVar])})
+            .attr("width", x.bandwidth())
+            .attr("height", function(d){return height - y(d[selectedVar])})
+            .attr("fill", function(d){return d.Color})
+    })
+    svg.append("text").text("2022-2023 PPG For All NBA Teams").style("font-size","1.5em").attr("x",250).attr("y",0).attr("text-anchor", "middle")
+    svg.append("text").text("Team").attr("x",250).attr("y",height+40).attr("text-anchor", "middle");
+    svg.append("text").text("PPG").attr("x",-200).attr("y",-30).attr("transform","rotate(-90)").attr("text-anchor", "middle");
+    }
+    update('PPG')
+    </script>
